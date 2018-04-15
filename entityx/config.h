@@ -8,6 +8,6 @@
 namespace entityx {
 
 static const size_t MAX_COMPONENTS = 64;
-using TimeDelta = GameTime;
+using TimeDelta = const GameTime&;
 
 }  // namespace entityx
