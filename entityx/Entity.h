@@ -342,15 +342,28 @@ public:
   virtual void remove_component(Entity e) = 0;
   virtual void copy_component_to(Entity source, Entity target) = 0;
 };
+template <typename C, typename = void>
+class ComponentHelper;
 
 template <typename C>
-class ComponentHelper : public BaseComponentHelper {
+class ComponentHelper<C, std::enable_if_t<std::is_copy_constructible_v<C>>>: public BaseComponentHelper {
 public:
   void remove_component(Entity e) override {
     e.remove<C>();
   }
   void copy_component_to(Entity source, Entity target) override {
     target.assign_from_copy<C>(*(source.component<C>().get()));
+  }
+};
+template <typename C>
+class ComponentHelper<C, std::enable_if_t<!std::is_copy_constructible_v<C>>>: public BaseComponentHelper {
+public:
+  void remove_component(Entity e) override {
+    e.remove<C>();
+  }
+  void copy_component_to(Entity source, Entity target) override {
+      std::cerr << "Tried to copy a non-copy component!\n";
+      std::abort();
   }
 };
 
